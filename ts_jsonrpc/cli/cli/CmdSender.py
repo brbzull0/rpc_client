@@ -8,7 +8,7 @@ from ts_jsonrpc.jsonrpc.jsonrpc.RpcClientBase import RpcClientBase, JsonRpcProto
 from ts_jsonrpc.jsonrpc.jsonrpc.JsonRpcMessages import Request, Notification, Response
 
 from ts_jsonrpc.cli.cli.Printer import ConfigDescribePrinterGen, ErrorPrinterGen, FormattingType, RecordPrinterGen, SuccessPrinterGen, ConfigDiffPrinterGen, ConfigSetPrinterGen, RpcPrinterGen, GenericPrinterGen
-from ts_jsonrpc.cli.cli.Request import ConfigRequest, ServerRequest, StorageRequest, MetricRequest, HostRequest, StringDataRequest, RPCMessageBuilderBase, ConfigCommandType, StorageCommandType, MetricCommandType, ServerCommandType, HostCommandType, DataCommandType
+from ts_jsonrpc.cli.cli.Request import ConfigRequest, ServerRequest, StorageRequest, MetricRequest, HostRequest, StringDataRequest, RPCMessageBuilderBase, ConfigCommandType, StorageCommandType, MetricCommandType, ServerCommandType, HostCommandType, DataCommandType, PluginCommandType, PluginRequest
 
 
 ft_dict = {'legacy': FormattingType.LEGACY,
@@ -69,9 +69,9 @@ def make_printer(args, **kwargs: Any):
         return GenericPrinterGen(ft)
 
     if response.is_error():
-        return ErrorPrinterGen(ft, resp=response)
+        return ErrorPrinterGen(ft, req=req, resp=response)
     elif response.is_only_success():
-        return SuccessPrinterGen(ft, resp=response)
+        return SuccessPrinterGen(ft, req=req, resp=response)
     elif response.is_Ok():
         if args.action == 'config':
             return make_config_printer(ft, args, req, response)
@@ -84,6 +84,8 @@ def make_printer(args, **kwargs: Any):
         elif args.action == 'server':
             return make_server_printer(ft, args, req, response)
         elif args.action == 'data':
+            return GenericPrinterGen(ft, req=req, resp=response)
+        elif args.action == 'plugin':
             return GenericPrinterGen(ft, req=req, resp=response)
         else:
             return GenericPrinterGen(ft)
@@ -181,6 +183,12 @@ def data_from_param_action(args):
         except Exception as ex:
             raise ex
 
+def plugin_data_from_action(args):
+    if args.msg:
+        data = {'tag': args.msg[0], 'data': args.msg[1]}
+        return PluginCommandType.MSG, data
+    else:
+        None, None
 
 def make_call(args):
     # request
@@ -200,7 +208,8 @@ def make_call(args):
         cmdType, data, opt = server_param_to_enum(args)
         return Call(ServerRequest(cmdType, data, opt))
     elif args.action == 'plugin':
-        pass
+        cmdType, data = plugin_data_from_action(args)
+        return Call(PluginRequest(cmdType, data))
     elif args.action == 'data':
         cmdType, data = data_from_param_action(args)
         return Call(StringDataRequest(cmdType, data))

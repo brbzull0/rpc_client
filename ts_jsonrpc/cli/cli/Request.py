@@ -49,6 +49,9 @@ class DataCommandType(Enum):
     YAML = 2
     FILE = 3
 
+class PluginCommandType(Enum):
+    MSG = 1
+
 
 class RPCMessageBuilderBase(ABC):
 
@@ -193,6 +196,26 @@ class StringDataRequest(RPCMessageBuilderBase):
     def __init__(self, cmdType: DataCommandType, data: Any):
         self.cmdType = cmdType
         self.req = data
+
+    def get_request(self):
+        return self.req
+
+class PluginRequest(RPCMessageBuilderBase):
+    def __init__(self, cmdType: DataCommandType, data: Any):
+        self.cmdType = cmdType
+        self.data = data
+
+        if self.cmdType == PluginCommandType.MSG:
+            print(type(data))
+            print(data)
+            if 'tag' in self.data and 'data' in self.data:
+                t = self.data['tag']
+                d = self.data['data']
+                self.req = Request.admin_plugin_send_basic_msg(tag=t, data=d)
+            else:
+                  raise Exception("Missing data")
+        else:
+            raise Exception(f"Command '{self.cmdType}' not available")
 
     def get_request(self):
         return self.req

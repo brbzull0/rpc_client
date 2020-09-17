@@ -39,7 +39,8 @@ def host_handler(args):
 
 
 def plugin_handler(args):
-    print_not_implemented()
+    if args.msg:
+        handle_command(args)
 
 
 def server_handler(args):
@@ -68,10 +69,10 @@ def data_handler(args):
 
 def main():
 
-    parser.add_argument('-v', '--version', action='version', version='alpha-0.0.1', help="Request Version")
+    parser.add_argument('-v', '--version', action='version', version='alpha-0.0.1', help="Show current version")
     parser.add_argument('-d', '--verbose', action='store_true', help="Display raw request and response message")
-    parser.add_argument('-r', '--repeat', nargs='?', help="Repeat the same command N times")
-    parser.add_argument('-s', '--sim', action='store_true', help="Show json, don't send the message")
+    parser.add_argument('-r', '--repeat', nargs='?', metavar='count', help="Repeat the same command N times")
+    parser.add_argument('-s', '--sim', action='store_true', help="Show json, don't send the message[not implemented]")
     parser.add_argument(
         '-f',
         '--formatting',
@@ -85,9 +86,9 @@ def main():
         default='pretty',
         type=str, help="Output formatting options")
 
-    subparsers = parser.add_subparsers(title='Commands', description='Valid Commands', dest='action')
+    subparsers = parser.add_subparsers(title='Commands', description='Basic interaction command to talk with ATS', dest='action')
 
-    data_parser = subparsers.add_parser('data', help='raw json request')
+    data_parser = subparsers.add_parser('data', help='Accept raw json and yaml as request')
     mxg_data = data_parser.add_mutually_exclusive_group(required=False)
     mxg_data.add_argument('--json', metavar='json msg', nargs='?', help='Send raw json request')
     mxg_data.add_argument('--file', metavar='File name', nargs='?', help='Send raw data, either json or yaml')
@@ -137,6 +138,7 @@ def main():
     # Plugin
     plugin_parser = subparsers.add_parser('plugin', aliases=['p'], help='Interact with plugins')
     mxg_plugin = plugin_parser.add_mutually_exclusive_group(required=True)
+    mxg_plugin.add_argument('--msg', nargs=2, help='Send message to plugins - a TAG and the message DATA')
     mxg_plugin.set_defaults(func=plugin_handler)
 
     # Server
