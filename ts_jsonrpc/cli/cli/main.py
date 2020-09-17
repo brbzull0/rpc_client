@@ -67,13 +67,8 @@ def data_handler(args):
 
 
 def main():
-    # Todo move this out.
-    main_ns = {}
-    ver_path = convert_path('ts_jsonrpc/version.py')
-    with open(ver_path) as ver_file:
-        exec(ver_file.read(), main_ns)
 
-    parser.add_argument('-v', '--version', action='version', version=main_ns['__version__'], help="Request Version")
+    parser.add_argument('-v', '--version', action='version', version='alpha-0.0.1', help="Request Version")
     parser.add_argument('-d', '--verbose', action='store_true', help="Display raw request and response message")
     parser.add_argument('-r', '--repeat', nargs='?', help="Repeat the same command N times")
     parser.add_argument('-s', '--sim', action='store_true', help="Show json, don't send the message")

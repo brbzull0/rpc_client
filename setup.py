@@ -1,15 +1,11 @@
 from setuptools import find_packages, setup
 from distutils.util import convert_path
 
-main_ns = {}
-ver_path = convert_path('ts_jsonrpc/version.py')
-with open(ver_path) as ver_file:
-    exec(ver_file.read(), main_ns)
 
 setup(
     name='ts_jsonrpc',
     packages=find_packages(include=['ts_jsonrpc.*']),
-    version=main_ns['__version__'],
+    version='alpha-0.0.1',
     description='JSONRPC 2.0 client',
     author='',
     license='APACHE 2.0',

@@ -1,6 +1,6 @@
 
 import json
-import ruamel.yaml
+#import ruamel.yaml
 
 from typing import Any
 from ast import literal_eval
@@ -87,6 +87,7 @@ class PrinterGenBase(ABC):
         # req
         try:
             if self.req is not None:
+                print(f"blah->{self.req}")
                 s = json.dumps(literal_eval(
                     str(self.req)), indent=4, sort_keys=True)
                 self.buff.write("-->\n")
@@ -106,10 +107,10 @@ class PrinterGenBase(ABC):
 
     def build_output_yaml(self):
         print("before printing yaml")
-        d = self.resp.get_as_dict()
+        #d = self.resp.get_as_dict()
         # a = yaml.dump(yaml.load(d, yaml.SafeLoader))
         # print(type(a))
-        print(ruamel.yaml.round_trip_load("{'a"))
+        # print(ruamel.yaml.round_trip_load("{'a"))
         # self.buff.write(yaml.dump(yaml.load(d), default_flow_style=False))
         # self.buff.write('\n')
         # self.buff.write(yaml.dump(yaml.load(d)))

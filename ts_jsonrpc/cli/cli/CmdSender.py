@@ -19,21 +19,21 @@ ft_dict = {'legacy': FormattingType.LEGACY,
            'records': FormattingType.RECORD}
 
 
-def make_config_printer(ft, args, response):
+def make_config_printer(ft, args, req, response):
     if args.records:
         ft = FormattingType.RECORD  # not very nice
 
     if args.describe:
-        return ConfigDescribePrinterGen(ft, resp=response)
+        return ConfigDescribePrinterGen(ft, req=req, resp=response)
     elif args.diff:
-        return ConfigDiffPrinterGen(ft, resp=response)
+        return ConfigDiffPrinterGen(ft, req=req, resp=response)
     elif args.set:
-        return ConfigSetPrinterGen(ft, resp=response)
+        return ConfigSetPrinterGen(ft, req=req, resp=response)
     else:
-        return RecordPrinterGen(ft, resp=response)
+        return RecordPrinterGen(ft, req=req, resp=response)
 
 
-def make_storage_printer(ft, args, response):
+def make_storage_printer(ft, args, req, response):
     opt = []
     if args.status:
         opt.append('status')
@@ -43,11 +43,11 @@ def make_storage_printer(ft, args, response):
     return StoragePrinterGen(ft, req=response, opt=opt)
 
 
-def make_server_printer(ft, args, response):
+def make_server_printer(ft, args, req, response):
     if args.rpc:
-        return RpcPrinterGen(ft, resp=response)
+        return RpcPrinterGen(ft, req=req, resp=response)
     else:
-        return GenericPrinterGen(ft, resp=response)
+        return GenericPrinterGen(ft, req=req, resp=response)
 
 
 def make_printer(args, **kwargs: Any):
@@ -74,15 +74,15 @@ def make_printer(args, **kwargs: Any):
         return SuccessPrinterGen(ft, resp=response)
     elif response.is_Ok():
         if args.action == 'config':
-            return make_config_printer(ft, args, response)
+            return make_config_printer(ft, args, req, response)
         elif args.action == 'metric':
             return RecordPrinterGen(ft, resp=response)
         elif args.action == 'storage':
-            return make_storage_printer(ft, args, response)
+            return make_storage_printer(ft, args, req, response)
         elif args.action == 'host':
             return RecordPrinterGen(ft, resp=response)
         elif args.action == 'server':
-            return make_server_printer(ft, args, response)
+            return make_server_printer(ft, args, req, response)
         elif args.action == 'data':
             return GenericPrinterGen(ft, req=req, resp=response)
         else:
@@ -229,15 +229,15 @@ def handle_command(args):
     try:
         call = make_call(args)
 
-        req, res = call.execute()
+        request, response = call.execute()
 
         if args.verbose:
-            if req is not None:
-                print(f"--> {req}")
-            if res is not None:
-                print(f"<-- {res}")
+            if request is not None:
+                print(f"--> {request}")
+            if response is not None:
+                print(f"<-- {response}")
 
-        printer = make_printer(args, req=req, resp=res)
+        printer = make_printer(args, req=request, resp=response)
         # display output
         print(printer)
 

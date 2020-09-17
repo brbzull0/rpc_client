@@ -74,7 +74,10 @@ class UdsClient(RpcClientBase):
     def __disconnect(self):
         try:
             if self.sock is not None:
-                self.sock.shutdown(socket.SHUT_RDWR)
+                try:
+                    self.sock.shutdown(socket.SHUT_RDWR)
+                except (socket.error, OSError, ValueError):
+                    pass
                 self.sock.close()
         except Exception as err:
             raise
