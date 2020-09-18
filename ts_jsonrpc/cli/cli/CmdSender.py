@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Tuple, Union, Any
 
 from ts_jsonrpc.jsonrpc.jsonrpc.UdsClient import UdsClient, Config
-from ts_jsonrpc.jsonrpc.jsonrpc.RpcClientBase import RpcClientBase, JsonRpcProtocolException
+from ts_jsonrpc.jsonrpc.jsonrpc.RpcClientBase import RpcClientBase
 from ts_jsonrpc.jsonrpc.jsonrpc.JsonRpcMessages import Request, Notification, Response
 
 from ts_jsonrpc.cli.cli.Printer import ConfigDescribePrinterGen, ErrorPrinterGen, FormattingType, RecordPrinterGen, SuccessPrinterGen, ConfigDiffPrinterGen, ConfigSetPrinterGen, RpcPrinterGen, GenericPrinterGen
@@ -64,9 +64,8 @@ def make_printer(args, **kwargs: Any):
 
     # if this was a notification, response will not hold any value, so send the generic printer
     # back, which will not display anything.
-    print(response)
     if response is None:
-        return GenericPrinterGen(ft)
+        return GenericPrinterGen(ft, req=req)
 
     if response.is_error():
         return ErrorPrinterGen(ft, req=req, resp=response)
@@ -183,12 +182,14 @@ def data_from_param_action(args):
         except Exception as ex:
             raise ex
 
+
 def plugin_data_from_action(args):
     if args.msg:
         data = {'tag': args.msg[0], 'data': args.msg[1]}
         return PluginCommandType.MSG, data
     else:
         None, None
+
 
 def make_call(args):
     # request
@@ -250,5 +251,5 @@ def handle_command(args):
         # display output
         print(printer)
 
-    except JsonRpcProtocolException as pe:
-        print(f"Exception error {pe.message}")
+    except Exception as ex:
+        raise

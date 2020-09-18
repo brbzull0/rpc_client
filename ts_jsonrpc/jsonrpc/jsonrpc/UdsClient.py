@@ -68,7 +68,6 @@ class UdsClient(RpcClientBase):
         try:
             self.sock.connect(self.config.path)
         except socket.error as msg:
-            print("Error : {}".format(msg))
             raise ClientException('<>', msg.strerror)
 
     def __disconnect(self):

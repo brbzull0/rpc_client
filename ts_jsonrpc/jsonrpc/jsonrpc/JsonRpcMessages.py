@@ -98,7 +98,9 @@ class Response(dict):
 
 
 def make_response(text):
-    print(f"text={text}")
+    if text == '':
+        return None
+
     s = json.loads(text)
     if isinstance(s, dict):
         return Response(json=s)

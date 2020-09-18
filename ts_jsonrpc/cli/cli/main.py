@@ -176,7 +176,7 @@ def main():
         func(args)
     except Exception as e:
         print("Something went wrong: {}".format(e))
-        traceback.print_exc(file=sys.stdout)
+        # traceback.print_exc(file=sys.stdout)
 
 
 if __name__ == '__main__':

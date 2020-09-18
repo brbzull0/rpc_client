@@ -87,14 +87,13 @@ class PrinterGenBase(ABC):
         # req
         try:
             if self.req is not None:
-                print(f"blah->{self.req}")
                 s = json.dumps(literal_eval(
                     str(self.req)), indent=4, sort_keys=True)
                 self.buff.write("-->\n")
                 self.buff.write(s)
                 self.buff.write('\n')
         except Exception as ex:
-            self.buff.write("--> ' req cannot be render'")
+            self.buff.write("--> ' req cannot be render'\n")
         # resp
         try:
             if self.resp is not None:
@@ -103,7 +102,7 @@ class PrinterGenBase(ABC):
                 self.buff.write("< --\n")
                 self.buff.write(s)
         except Exception as ex:
-            self.buff.write("<-- ' resp cannot be render'")
+            self.buff.write("<-- ' resp cannot be render'\n")
 
     def build_output_yaml(self):
         print("before printing yaml")
@@ -124,7 +123,6 @@ class PrinterGenBase(ABC):
         pass
 
     def __generate_output(self):
-        print(f"Formatting type {self.formattingType}")
         if self.formattingType is FormattingType.LEGACY:
             self.build_output_legacy(False)
         elif self.formattingType is FormattingType.RECORD:
