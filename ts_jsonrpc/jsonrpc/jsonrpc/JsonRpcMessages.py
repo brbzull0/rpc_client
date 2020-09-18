@@ -90,9 +90,6 @@ class Response(dict):
     def is_Ok(self) -> bool:
         return not self.is_error()
 
-    def get_as_dict(self):
-        return self.__dict__
-
     def __str__(self) -> str:
         return json.dumps(self.__dict__)
 

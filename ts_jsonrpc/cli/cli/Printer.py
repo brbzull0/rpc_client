@@ -11,6 +11,8 @@ from colorama import Fore, Back, Style
 from collections import namedtuple
 from ts_jsonrpc.cli.cli.TSUtils import *
 
+import yaml
+
 
 def color(color, text, reset=True):
     return "{}{}{}".format(color, text, Style.RESET_ALL if reset else '')
@@ -93,7 +95,7 @@ class PrinterGenBase(ABC):
                 self.buff.write(s)
                 self.buff.write('\n')
         except Exception as ex:
-            self.buff.write("--> ' req cannot be render'\n")
+            self.buff.write(f"can't render response to json {ex}\n")
         # resp
         try:
             if self.resp is not None:
@@ -102,18 +104,35 @@ class PrinterGenBase(ABC):
                 self.buff.write("< --\n")
                 self.buff.write(s)
         except Exception as ex:
-            self.buff.write("<-- ' resp cannot be render'\n")
+            self.buff.write(f"can't render response to json: {ex}\n")
 
     def build_output_yaml(self):
-        print("before printing yaml")
-        #d = self.resp.get_as_dict()
-        # a = yaml.dump(yaml.load(d, yaml.SafeLoader))
-        # print(type(a))
-        # print(ruamel.yaml.round_trip_load("{'a"))
-        # self.buff.write(yaml.dump(yaml.load(d), default_flow_style=False))
-        # self.buff.write('\n')
-        # self.buff.write(yaml.dump(yaml.load(d)))
-        print("after printing yaml")
+        try:
+            self.buff.write("-->\n")
+            if isinstance(self.req, str):
+                r = literal_eval(self.req)
+
+                yaml.dump(r, self.buff, indent=4, sort_keys=True)
+            else:
+                # TODO: Buggy as Request inherit from dict.
+                yaml.dump(self.req.__dict__, self.buff, encoding='utf-8', indent=4, sort_keys=True)
+
+        except Exception as ex:
+            self.buff.write(f"can't render request yaml: {ex}\n")
+
+        try:
+            if isinstance(self.req, str):
+                r = literal_eval(self.req)
+                self.buff.write("-->\n")
+                yaml.dump(r, self.buff)
+            else:
+                yaml.dump(self.req, self.buff, indent=4, sort_keys=True)
+
+            self.buff.write('\n')
+            self.buff.write("<--\n")
+            yaml.dump(self.resp.__dict__, self.buff, indent=4, sort_keys=True)
+        except Exception as ex:
+            self.buff.write(f"can't render response yaml: {ex}\n")
 
     def build_output_pretty(self):
         pass
