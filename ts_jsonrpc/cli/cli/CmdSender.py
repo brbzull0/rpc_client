@@ -221,7 +221,7 @@ def make_call(args):
 class Call:
     def __init__(self, request: RPCMessageBuilderBase):
         # We use UDS for now.
-        path = os.getenv('JSONRPC20_SOCK_PATH', '/tmp/jsonrpc20.sock')
+        path = os.getenv('TS_JSONRPC20_SOCK_PATH', '/tmp/jsonrpc20.sock')
         # define a config file for this??
         self.conf = Config(path, 20, 1013)
         self.jsonrpcRequest = request.get()

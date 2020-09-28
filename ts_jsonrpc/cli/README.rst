@@ -1,6 +1,17 @@
 Description
 ===========
 
+Configuration
+=============
+
+Unix Domain Socket
+""""""""""""""""""
+
+``TS_JSONRPC20_SOCK_PATH`` environment variable should be used to set the corresponding TS RPC path name. It should be the same that was created by the traffic server.
+
+.. note::
+    By default we use the same as shipped with TS ``XXXX``. (for dev purposes we use /tmp/jsonrpc20.sock)
+
 Usage
 =====
 
@@ -40,7 +51,8 @@ help::
 Optional Arguments
 ------------------
 
--d
+.. option:: -d
+
 
 It will show the jsonrpc request and response on the terminal.
 
@@ -52,31 +64,33 @@ Example::
 
 
 
--r
+.. option:: -r
+
 
 Repeat the same command N times.
 
--s
+.. option:: -s
+
 
 Do not send the message, just show the request message (this can be combined with -f to show pretty json or yaml
 
--f
+.. option:: -f
 
 Formatting output options
 ^^^^^^^^^^^^^^^^^^^^^^^^^
         
-legacy
-""""""
+.. option:: legacy
+
 
 Show output that is similar to traffic_ctl
 
-raw
-"""
+.. option:: raw
+
 
 Show raw messages, if it's json a raw one line json will be shown.
 
-json
-""""
+.. option:: json
+
 
 Formatted json will be display in the terminal
 
@@ -118,8 +132,7 @@ Example::
         ]
     }     
 
-yaml
-""""
+.. option:: yaml
 
 Formatted yaml will be display
 
@@ -157,8 +170,8 @@ Example::
 
 
 
-pretty
-""""""
+.. option:: pretty
+
 
 Custom format will be display
 
@@ -180,6 +193,33 @@ Example::
      ├── Order:           421
      └── Raw Stat Block:  0
 
-ATS commands
-------------
 
+Subcommands
+===========
+
+
+.. option:: data
+
+Accept raw json and yaml as request
+
+
+Usage::
+
+  --json [json msg]   Send raw json request
+  --file [File name]  Send raw data, either json or yaml
+
+Example::
+
+    tscli -f yaml  data --file some_jsonrpc_message_in_yaml_format.yaml
+    tscli -f yaml  data --file some_jsonrpc_message_in_json_format.json
+    tscli -f yaml  data --json '{.. json message ...}'
+
+
+.. Note::
+    As long as the message defined in the file content is a valid `jsonrpc 2.0 <https://www.jsonrpc.org/specification>`_ message, it can be either json or yaml format. Message should honor all the jsonrpc 2.0 fields.
+
+Check `this <https://github.com/brbzull0/rpc_client/blob/master/ts_jsonrpc/jsonrpc/README.rst>`_ if need to generate jsonrpc messages for TS`
+
+
+TBC:
+All this should match  traffic_ctl
