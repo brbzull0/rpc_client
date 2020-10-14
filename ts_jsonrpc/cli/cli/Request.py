@@ -64,6 +64,36 @@ class RPCMessageBuilderBase(ABC):
         return self.get_request()
 
 
+def convert_to_record_request(data, **kwargs: Any):
+    def by_name(record_request, name):
+        record_request['record_name'] = name
+        return record_request
+
+    def by_regex(record_request, name):
+        record_request['record_name_regex'] = name
+        return record_request
+
+    def add_metric_filter(record_request):
+        record_request['rec_types'] = [2, 4, 32]  # METRIC.
+        return record_request
+
+    def add_config_filter(record_request):
+        record_request['rec_types'] = [1, 16]  # CONFIG.
+        return record_request
+
+    def make_it(data, isConfig, isRegex):
+        records = []
+        for name in data:
+            record_request = {}
+            record_request = by_regex(record_request, name) if isRegex is True else by_name(record_request, name)
+            record_request = add_config_filter(record_request) if isConfig is True else add_metric_filter(record_request)
+            records.append(record_request)
+
+        return records
+
+    return make_it(data, kwargs['isConfig'], kwargs['isRegex'])
+
+
 class ConfigRequest(RPCMessageBuilderBase):
     def __init__(self, cmdType: ConfigCommandType, data: Any):
         self.cmdType = cmdType
@@ -71,11 +101,11 @@ class ConfigRequest(RPCMessageBuilderBase):
             self.data = list(dict.fromkeys(data))
 
         if self.cmdType == ConfigCommandType.DEFAULTS or self.cmdType == ConfigCommandType.DIFF:
-            self.req = Request.admin_config_get_all_records()
+            self.req = Request.admin_lookup_records(convert_to_record_request([".*"], isConfig=True, isRegex=True))
         elif self.cmdType == ConfigCommandType.GET or self.cmdType == ConfigCommandType.DESCRIBE:
-            self.req = Request.admin_config_get_records(self.data)
+            self.req = Request.admin_lookup_records(convert_to_record_request(self.data, isConfig=True, isRegex=False))
         elif self.cmdType == ConfigCommandType.MATCH:
-            self.req = Request.admin_config_get_records_regex(self.data)
+            self.req = Request.admin_lookup_records(convert_to_record_request(self.data, isConfig=True, isRegex=True))
         elif self.cmdType == ConfigCommandType.RELOAD:
             self.req = Request.admin_config_reload()
         elif self.cmdType == ConfigCommandType.SET:
@@ -89,7 +119,7 @@ class ConfigRequest(RPCMessageBuilderBase):
                 'proxy.node.config.reconfigure_time',
                 'proxy.node.config.reconfigure_required',
                 'proxy.node.config.restart_required.proxy']
-            self.req = Request.admin_record_get_records_info(self.data)
+            self.req = Request.admin_lookup_records(convert_to_record_request(self.data, isConfig=False, isRegex=False))
 
         else:
             raise Exception(f"Command '{self.cmdType}' not available")
@@ -123,15 +153,15 @@ class MetricRequest(RPCMessageBuilderBase):
         if self.cmdType == MetricCommandType.CLEAR:
             self.req = Request.admin_metric_get_all_records()
         elif self.cmdType == MetricCommandType.DESCRIBE:
-            self.req = Request.admin_metric_get_records(self.data)
+            self.req = Request.admin_lookup_records(convert_to_record_request(self.data, isConfig=False, isRegex=False))
         elif self.cmdType == MetricCommandType.GET:
-            self.req = Request.admin_metric_get_records(self.data)
+            self.req = Request.admin_lookup_records(convert_to_record_request(self.data, isConfig=False, isRegex=False))
         elif self.cmdType == MetricCommandType.MATCH:
-            self.req = Request.admin_metric_get_records_regex(self.data)
+            self.req = Request.admin_lookup_records(convert_to_record_request(self.data, isConfig=False, isRegex=True))
         elif self.cmdType == MetricCommandType.MONITOR:
-            self.req = Request.admin_metric_get_records(self.data)
+            self.req = Request.admin_lookup_records(convert_to_record_request(self.data, isConfig=False, isRegex=False))
         elif self.cmdType == MetricCommandType.ZERO:
-            self.req = Request.admin_metric_clear(self.data)
+            self.req = Request.admin_metric_clear(convert_to_record_request(self.data, isConfig=False, isRegex=False))
         else:
             raise Exception(f"Command '{self.cmdType}' not available")
 
@@ -161,7 +191,7 @@ class HostRequest(RPCMessageBuilderBase):
             self.req = Request.admin_host_set_status(operation='down', host=self.data, reason=opt['reason'], time=opt['time'])
         elif self.cmdType == HostCommandType.STATUS:
             names = ["{}.{}".format('proxy.process.host_status', name) for name in self.data]
-            self.req = Request.admin_metric_get_records(names)
+            self.req = Request.admin_lookup_records(namconvert_to_record_request(names, isConfig=False, isRegex=False))
         else:
             raise Exception(f"Command '{self.cmdType}' not available")
 

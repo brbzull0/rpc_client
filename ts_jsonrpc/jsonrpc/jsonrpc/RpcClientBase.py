@@ -68,7 +68,7 @@ class RpcClientBase(ABC):
         try:
             str_request = self.__serialize(req)
             str_response = self.do_call(str_request)
-
+            print(f' response: {str_response}')
             if str_response == '' and self.__is_notification(req) == False:
                 raise Exception("We haven't got a response when it was expected.")
 
