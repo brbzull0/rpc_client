@@ -1,5 +1,4 @@
 from typing import List, Callable, Any, Union
-from dataclasses import dataclass
 from collections import OrderedDict
 import json
 import uuid

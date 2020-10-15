@@ -7,7 +7,7 @@ setup(
     description='JSONRPC 2.0 client',
     author='',
     license='APACHE 2.0',
-    install_requires=['colorama', 'argparse', 'pyyaml', 'ts_jsonrpc'],
+    install_requires=['colorama', 'argparse', 'pyyaml'],
     setup_requires=[],
     tests_require=['unittest'],
     test_suite='unittest',

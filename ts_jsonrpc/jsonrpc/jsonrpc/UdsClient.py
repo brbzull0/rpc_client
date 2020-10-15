@@ -5,14 +5,12 @@ import pprint
 import io
 
 from typing import Tuple
-from dataclasses import dataclass
 
 
 from datetime import datetime
 from ts_jsonrpc.jsonrpc.jsonrpc.RpcClientBase import RpcClientBase, ClientException
 
 
-@dataclass
 class Config:
     def __init__(self, path, timeOut=20, buffer=1024):
         self.path = path
